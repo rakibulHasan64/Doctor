@@ -16,6 +16,8 @@ import ShopPage from "../page/ShopPage";
 import DetlisPage from "../page/DetlisPage";
 import AddToCartPage from "../page/AddToCartPage";
 import Pymant from "../componet/addtocart/Pymant";
+import PaymentHistory from "../componet/sellar/PymantHistory";
+import UserPymantHistory from "../componet/shop/UserPymantHistory";
 
 
 
@@ -52,6 +54,8 @@ export const router = createBrowserRouter([
          },
 
          
+
+         
          {
             path: "/register",
             element: <Regsiter />
@@ -68,7 +72,7 @@ export const router = createBrowserRouter([
 
    {
       path: "/dashboard",
-      element: <DashboardLayout />, // ✅ correct key
+      element: <DashboardLayout />, 
       children: [
          {
             path: "",
@@ -89,6 +93,14 @@ export const router = createBrowserRouter([
 
          },
 
+
+         {
+
+            path: "user-pymanthistroy",
+            element: <UserPymantHistory />
+
+         },
+
          // {
          //    path: "sales-report",
          //    element: <SalesReport />
@@ -101,10 +113,10 @@ export const router = createBrowserRouter([
             path: "manage-medicines",
             element: <Sellarmanageall />
          },
-         // {
-         //    path: "payment-history",
-         //    element: <PaymentHistory />
-         // },
+         {
+            path: "payment-history",
+            element: < PaymentHistory />
+         },
          // {
          //    path: "advertise-request",
          //    element: <AdRequest />

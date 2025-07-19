@@ -39,10 +39,10 @@ function Slider() {
                      <img
                         src={item.image || "https://via.placeholder.com/800x400?text=No+Image"}
                         alt={item.title}
-                        className="w-full h-[400px] object-cover"
+                        className="w-full h-[500px] object-cover"
                      />
                      <div className="absolute inset-0  bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
-                        <h2 className="text-2xl font-bold mb-2 text-center">{item.title}</h2>
+                        <h2 className="text-2xl font-bold mb-2 text-center hidden">{item.title}</h2>
                      </div>
                   </div>
                </SwiperSlide>

@@ -1,5 +1,5 @@
 import { loadStripe } from '@stripe/stripe-js';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Chakout from './Chakout';
 import { Elements } from '@stripe/react-stripe-js';
 import useAuth from '../../hooks/useAuth';
@@ -8,8 +8,14 @@ const stripePromise = loadStripe(import.meta.env.VITE_PAYMENT_KEY);
 
 function Pymant() {
    const location = useLocation();
+   const { id } = useParams();
+   console.log(id);
+   
    const navigate = useNavigate();
    const { cartItems = [], totalAmount = 0 } = location.state || {};
+
+
+   
    const { user } = useAuth();
 
    if (cartItems.length === 0) {

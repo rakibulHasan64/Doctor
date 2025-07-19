@@ -12,7 +12,7 @@ function Chakout({ user, cartItems, totalprice }) {
 
 
 
-   
+
 
    const handleSubmit = async (event) => {
       event.preventDefault();
@@ -34,17 +34,17 @@ function Chakout({ user, cartItems, totalprice }) {
       if (error) {
          setError(error.message);
          setProcessing(false);
-         return; // error হলে আর কাজ করবে না
+         return; 
       }
 
       try {
-         // পেমেন্ট ইন্টেন্ট তৈরি করছি সার্ভারে
+         
          const res = await axiosSecure.post("/create-payment-intent", {
             amount: Math.round(totalprice * 100), 
          });
          const clientSecret = res.data.clientSecret; 
 
-         // কার্ড পেমেন্ট কনফার্ম করা
+         
          const confirmResult = await stripe.confirmCardPayment(clientSecret, {
             payment_method: paymentMethod.id,
          });
@@ -54,12 +54,12 @@ function Chakout({ user, cartItems, totalprice }) {
          } else if (confirmResult.paymentIntent.status === "succeeded") {
             setSuccess("🎉 পেমেন্ট সফল হয়েছে!");
 
-            // পেমেন্ট হিস্টোরি সংরক্ষণ
+            
             await axiosSecure.post("/payment", {
                userEmail: user.email,
-               cartItems: cartItems?.map(item => ({ id: item.medicine._id, quantity: item.quantity })), // শুধুমাত্র প্রয়োজনীয় তথ্য পাঠানো
+               cartItems: cartItems?.map(item => ({ id: item.medicine._id, quantity: item.quantity })), 
                amount: totalprice,
-               transactionId: confirmResult.paymentIntent.id, // নাম মিলিয়ে নাও সার্ভারে
+               transactionId: confirmResult.paymentIntent.id, 
                status: "paid",
                date: new Date(),
             });

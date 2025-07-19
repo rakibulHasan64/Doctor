@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaShoppingCart } from "react-icons/fa";
+import { MdLocalPharmacy } from "react-icons/md";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import toast from "react-hot-toast";
 import useCart from "../../hooks/useCart";
+import LoadingSpinner from "./LoadingSpinner";
 
 function Shops() {
    const axiosSecure = useAxiosSecure();
@@ -22,9 +24,12 @@ function Shops() {
       queryFn: fetchMedicines,
    });
 
-
-
    const handleAddToCart = async (data) => {
+      if (!user) {
+         toast.error("Please login first!");
+         return navigate("/login");
+      }
+
       const cartItem = {
          medicine: data,
          user: user?.email,
@@ -33,69 +38,95 @@ function Shops() {
 
       try {
          const res = await axiosSecure.post("/add-to-cart", cartItem);
-
          if (res.data?.insertedId) {
-            alert("✅ কার্টে যোগ করা হয়েছে!");
-            refetch()
+            toast.success("Added to cart successfully!");
+            refetch();
          } else {
-            toast.warn("⚠️ কার্টে যোগ করা যায়নি!");
+            toast.error("Failed to add to cart!");
          }
       } catch (error) {
-         console.error("❌ Error adding to cart:", error);
-         toast.error("❌ সার্ভারে সমস্যা হয়েছে!");
+         console.error("Error adding to cart:", error);
+         toast.error("Server error occurred!");
       }
    };
 
-
-
-
-   if (isLoading) return <p>লোড হচ্ছে...</p>;
-   if (error) return <p>ডাটা আনতে সমস্যা হয়েছে!</p>;
-
+   if (isLoading) return <LoadingSpinner />;
+   
    return (
-      <div className="p-4 container mx-auto py-10 h-svh">
-         <h2 className="text-xl font-bold mb-4">🔹 সব মেডিসিন টেবিলে</h2>
-         <table className="w-full border border-gray-300 text-sm">
-            <thead>
-               <tr className="bg-gray-100">
-                  <th>Image</th>
-                  <th>Name</th>
-                  <th>Generic</th>
-                  <th>Company</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-               </tr>
-            </thead>
-            <tbody>
-               {medicines?.map((med) => (
-                  <tr key={med._id} className="border-b">
-                     <td>
-                        <img src={med.image} alt={med.name} className="w-10 h-10 rounded" />
-                     </td>
-                     <td>{med.name}</td>
-                     <td>{med.generic}</td>
-                     <td>{med.company}</td>
-                     <td>{med.price} ৳</td>
-                     <td>{med.status}</td>
-                     <td className="flex gap-2">
-                        <button
-                           onClick={() => handleAddToCart(med)}
-                           className="bg-green-500 text-white px-2 py-1 rounded text-xs"
-                        >
-                           Select
-                        </button>
-                        <button
-                           onClick={() => navigate(`/medicine/${med._id}`)}
-                           className="text-blue-600"
-                        >
-                           <FaEye />
-                        </button>
-                     </td>
-                  </tr>
-               ))}
-            </tbody>
-         </table>
+      <div className="container mx-auto px-4 py-8">
+         <div className="flex items-center mb-8">
+            <MdLocalPharmacy className="text-3xl text-blue-600 mr-2" />
+            <h1 className="text-2xl font-bold text-gray-800">Medicine Shop</h1>
+         </div>
+
+         <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="overflow-x-auto">
+               <table className="w-full">
+                  <thead className="bg-blue-600 text-white">
+                     <tr>
+                        <th className="w-16 p-3 text-left">Image</th>
+                        <th className="p-3 text-left">Name</th>
+                        <th className="p-3 text-left">Generic</th>
+                        <th className="p-3 text-left">Company</th>
+                        <th className="p-3 text-left">Price</th>
+                        <th className="p-3 text-left">Status</th>
+                        <th className="p-3 text-center">Actions</th>
+                     </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                     {medicines?.map((med) => (
+                        <tr key={med._id} className="hover:bg-gray-50 transition-colors">
+                           <td className="p-3">
+                              <img
+                                 src={med.image}
+                                 alt={med.name}
+                                 className="w-12 h-12 object-cover rounded-md border border-gray-200"
+                              />
+                           </td>
+                           <td className="p-3 font-medium text-gray-800">{med.name}</td>
+                           <td className="p-3 text-gray-600">{med.generic}</td>
+                           <td className="p-3 text-gray-600">{med.company}</td>
+                           <td className="p-3 font-semibold text-blue-600">{med.price} ৳</td>
+                           <td className="p-3">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${med.status === "in-stock"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-red-100 text-red-800"
+                                 }`}>
+                                 {med.status}
+                              </span>
+                           </td>
+                           <td className="p-3 flex justify-center space-x-2">
+                              <button
+                                 onClick={() => handleAddToCart(med)}
+                                 
+                                 className={`p-2 rounded-full ${med.status === "in-stock"
+                                       ? "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                                       : "bg-gray-100 text-gray-400 "
+                                    } transition-colors`}
+                                 title="Add to cart"
+                              >
+                                 <FaShoppingCart />
+                              </button>
+                              <button
+                                 onClick={() => navigate(`/medicine/${med._id}`)}
+                                 className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                                 title="View details"
+                              >
+                                 <FaEye />
+                              </button>
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            </div>
+
+            {medicines.length === 0 && (
+               <div className="p-8 text-center text-gray-500">
+                  No medicines available at the moment.
+               </div>
+            )}
+         </div>
       </div>
    );
 }
