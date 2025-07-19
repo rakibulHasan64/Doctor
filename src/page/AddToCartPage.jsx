@@ -56,7 +56,7 @@ function AddToCartPage() {
 
    const handleProceedToPayment = () => {
       if (cartItems.length === 0) return;
-      navigate("/payment", {
+      navigate("/dashboard/payment", {
          state: { cartItems, totalAmount: grandTotal }, // ✅ pass to /payment route
       });
    };
@@ -75,7 +75,7 @@ function AddToCartPage() {
          ) : (
             <>
                <div className="grid gap-6">
-                  {cartItems.map((item) => {
+                  {cartItems?.map((item) => {
                      const price = item.medicine?.price ?? 0;
                      const discount = item.medicine?.discount ?? 0;
                      const quantity = typeof item.quantity === "number" ? item.quantity : 1;

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import { FaPills, FaIndustry, FaTag, FaWeight, FaInfoCircle, FaMoneyBillWave, FaPercentage } from "react-icons/fa";
@@ -31,8 +31,10 @@ function DetailsPage() {
 
    return (
       <div className="min-h-screen  py-8 px-4 sm:px-6 lg:px-8 mt-30">
-         <div className="max-w-4xl mx-auto">
-            <div className="bg-white shadow-2xl rounded-lg overflow-hidden">
+         <div className="max-w-4xl mx-auto"> 
+            <Link to={-1}><h4 className="text-2xl">x</h4></Link> 
+
+           <div className="bg-white shadow-2xl rounded-lg overflow-hidden">
                {/* Medicine Image */}
                <div className="md:flex">
                   <div className="md:w-1/2 p-4">

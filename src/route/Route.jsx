@@ -51,13 +51,7 @@ export const router = createBrowserRouter([
 
          },
 
-         {
-
-            path:"/payment",
-            element:< Pymant />
-
-         },
-
+         
          {
             path: "/register",
             element: <Regsiter />
@@ -88,10 +82,13 @@ export const router = createBrowserRouter([
             path: "manage-categories",
             element: <ManageCategory />
          },
-         // {
-         //    path: "payments",
-         //    element: <Payments />
-         // },
+         {
+
+            path: "payment",
+            element: < Pymant />
+
+         },
+
          // {
          //    path: "sales-report",
          //    element: <SalesReport />

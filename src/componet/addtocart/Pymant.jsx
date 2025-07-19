@@ -1,27 +1,31 @@
-import React from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Chakout from './Chakout';
+import { Elements } from '@stripe/react-stripe-js';
+import useAuth from '../../hooks/useAuth';
+
+const stripePromise = loadStripe(import.meta.env.VITE_PAYMENT_KEY);
 
 function Pymant() {
    const location = useLocation();
    const navigate = useNavigate();
    const { cartItems = [], totalAmount = 0 } = location.state || {};
-
-   const handleConfirmPayment = () => {
-      // এখানে আপনি চাইলে API call করে অর্ডার সেন্ড করতে পারেন
-      alert("✅ পেমেন্ট সফল হয়েছে!");
-      navigate("/success"); // অথবা success/order page
-   };
+   const { user } = useAuth();
 
    if (cartItems.length === 0) {
       return <p className="text-center mt-20 text-red-500">কোনো কার্ট আইটেম পাওয়া যায়নি!</p>;
    }
+
+   console.log(cartItems);
+   
 
    return (
       <div className="max-w-4xl mx-auto px-4 py-12">
          <h2 className="text-2xl font-bold mb-6 border-b pb-2">💳 পেমেন্ট পেজ</h2>
 
          <div className="space-y-4">
-            {cartItems.map((item, idx) => {
+            {cartItems?.map((item, idx) => {
+            
                const price = item.medicine?.price ?? 0;
                const discount = item.medicine?.discount ?? 0;
                const unit = price - discount;
@@ -39,17 +43,12 @@ function Pymant() {
 
          <div className="mt-8 border-t pt-4 text-right">
             <h3 className="text-xl font-bold mb-3">মোট বিল: {totalAmount}৳</h3>
-            <button
-               onClick={handleConfirmPayment}
-               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-semibold"
-            >
-               ✅ পেমেন্ট নিশ্চিত করুন
-            </button>
+            <Elements stripe={stripePromise}>
+               <Chakout totalprice={totalAmount} cartItems={cartItems} user={user}  />
+            </Elements>
          </div>
       </div>
    );
 }
 
 export default Pymant;
-
-
