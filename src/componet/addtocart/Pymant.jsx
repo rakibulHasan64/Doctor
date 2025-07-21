@@ -3,13 +3,13 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Chakout from './Chakout';
 import { Elements } from '@stripe/react-stripe-js';
 import useAuth from '../../hooks/useAuth';
+import { Italic } from 'lucide-react';
 
 const stripePromise = loadStripe(import.meta.env.VITE_PAYMENT_KEY);
 
 function Pymant() {
    const location = useLocation();
-   const { id } = useParams();
-   console.log(id);
+   
    
    const navigate = useNavigate();
    const { cartItems = [], totalAmount = 0 } = location.state || {};
@@ -37,7 +37,8 @@ function Pymant() {
                const unit = price - discount;
                const quantity = item.quantity || 1;
                const total = unit * quantity;
-
+         
+                      
                return (
                   <div key={idx} className="border p-4 rounded-md shadow-sm">
                      <h3 className="font-semibold text-lg">{item.medicine?.name}</h3>
@@ -50,7 +51,7 @@ function Pymant() {
          <div className="mt-8 border-t pt-4 text-right">
             <h3 className="text-xl font-bold mb-3">মোট বিল: {totalAmount}৳</h3>
             <Elements stripe={stripePromise}>
-               <Chakout totalprice={totalAmount} cartItems={cartItems} user={user}  />
+               <Chakout totalprice={totalAmount}  cartItems={cartItems} user={user}  />
             </Elements>
          </div>
       </div>

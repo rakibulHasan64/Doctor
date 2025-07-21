@@ -18,6 +18,10 @@ import AddToCartPage from "../page/AddToCartPage";
 import Pymant from "../componet/addtocart/Pymant";
 import PaymentHistory from "../componet/sellar/PymantHistory";
 import UserPymantHistory from "../componet/shop/UserPymantHistory";
+import InvoisPage from "../componet/home/extasetiontwo/InvoisPage";
+import DashbordPymant from "../componet/dasbord/DashbordPymant";
+import SalesReport from "../componet/dasbord/SalesReport";
+import AdminBannMage from "../admin/AdminBannMage";
 
 
 
@@ -53,7 +57,12 @@ export const router = createBrowserRouter([
 
          },
 
-         
+         {
+
+            path: "/invoice",
+            element: <InvoisPage />
+
+         },
 
          
          {
@@ -88,7 +97,7 @@ export const router = createBrowserRouter([
          },
          {
 
-            path: "payment",
+            path: "payment/:id",
             element: < Pymant />
 
          },
@@ -101,13 +110,18 @@ export const router = createBrowserRouter([
 
          },
 
-         // {
-         //    path: "sales-report",
-         //    element: <SalesReport />
-         // },
+         {
+            path: "dashboard-pymant-seller",
+            element: <DashbordPymant />
+         },
+
+         {
+            path: "sales-report",
+            element: <SalesReport />
+         },
          {
             path: "manage-banner",
-            element: <ManageBanner />
+            element: <AdminBannMage />
          },
          {
             path: "manage-medicines",
@@ -117,10 +131,10 @@ export const router = createBrowserRouter([
             path: "payment-history",
             element: < PaymentHistory />
          },
-         // {
-         //    path: "advertise-request",
-         //    element: <AdRequest />
-         // }
+         {
+            path: "advertise-request",
+            element: <ManageBanner />
+         }
       ]
    },
 

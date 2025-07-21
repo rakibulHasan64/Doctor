@@ -47,7 +47,8 @@ const DasbordSidber = () => {
             <>
                <SidebarLink to="/dashboard/manage-users" icon={Users} label="Manage Users" />
                <SidebarLink to="/dashboard/manage-categories" icon={Tag} label="Manage Categories" />
-               <SidebarLink to="/dashboard/payments" icon={CreditCard} label="Payments" />
+               <SidebarLink to="/dashboard/payment-history" icon={CreditCard} label="Payment History" />
+            
                <SidebarLink to="/dashboard/sales-report" icon={BarChart2} label="Sales Report" />
                <SidebarLink to="/dashboard/manage-banner" icon={ShieldCheck} label="Advertise Banners" />
             </>
@@ -57,7 +58,7 @@ const DasbordSidber = () => {
          {role === "seller" && (
             <>
                <SidebarLink to="/dashboard/manage-medicines" icon={PackagePlus} label="Manage Medicines" />
-               <SidebarLink to="/dashboard/payment-history" icon={CreditCard} label="Payment History" />
+               <SidebarLink to="/dashboard/dashboard-pymant-seller" icon={CreditCard} label="Payments" />
                <SidebarLink to="/dashboard/advertise-request" icon={ClipboardList} label="Ad Request" />
             </>
          )}

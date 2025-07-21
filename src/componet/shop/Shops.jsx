@@ -24,14 +24,23 @@ function Shops() {
       queryFn: fetchMedicines,
    });
 
-   const handleAddToCart = async (data) => {
+   const handleAddToCart = async (med) => {
       if (!user) {
          toast.error("Please login first!");
          return navigate("/login");
       }
 
       const cartItem = {
-         medicine: data,
+         medicine: {
+            _id: med._id,
+            name: med.name,
+            price: med.price,
+            discount: med.discount,
+            quntity: med.quntity,
+            image: med.image,
+            generic: med.generic,
+            company: med.company,
+         },
          user: user?.email,
          date: new Date(),
       };
@@ -50,10 +59,11 @@ function Shops() {
       }
    };
 
+
    if (isLoading) return <LoadingSpinner />;
    
    return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 h-screen">
          <div className="flex items-center mb-8">
             <MdLocalPharmacy className="text-3xl text-blue-600 mr-2" />
             <h1 className="text-2xl font-bold text-gray-800">Medicine Shop</h1>

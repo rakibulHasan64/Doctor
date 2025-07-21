@@ -1,55 +1,42 @@
 import React, { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAuth from "../../hooks/useAuth";
 
-function PaymentHistory() {
+function DashbordPymant() {
    const axiosSecure = useAxiosSecure();
+   const { user } = useAuth();
    const [filter, setFilter] = useState("all");
-   const queryClient = useQueryClient();
 
-   // Fetch all users' payments (admin/seller view)
    const {
       data: payments = [],
       isLoading,
       isError,
    } = useQuery({
-      queryKey: ["all-user-payments"],
+      queryKey: ["seller-payments", user?.email],
       queryFn: async () => {
-         const res = await axiosSecure.get(`/all-payments`); // ✅ Make sure this route exists
+         const res = await axiosSecure.get(`/seller-payments?email=${user?.email}`);
          return res.data;
       },
+      enabled: !!user?.email,
    });
 
+   // Filter only 'paid' or 'pending'
    const filteredPayments =
       filter === "all"
          ? payments
          : payments.filter((payment) => payment.status === filter);
-
-   // Toggle payment status
-   const handleStatusToggle = async (paymentId, currentStatus) => {
-      const newStatus = currentStatus === "paid" ? "pending" : "paid";
-      try {
-         const res = await axiosSecure.patch(`/payments/${paymentId}`, {
-            status: newStatus,
-         });
-         if (res.data.modifiedCount > 0) {
-            queryClient.invalidateQueries(["all-user-payments"]);
-         }
-      } catch (error) {
-         console.error("Status update failed", error);
-      }
-   };
 
    if (isLoading) return <p>লোড হচ্ছে...</p>;
    if (isError) return <p>ডেটা লোড করতে সমস্যা হয়েছে।</p>;
 
    return (
       <div className="p-6">
-         <h2 className="text-2xl font-bold mb-4">📄 All Users Payment History</h2>
+         <h2 className="text-2xl font-bold mb-4">🧾 Seller Payment History</h2>
 
          {/* Filter Dropdown */}
          <div className="mb-4">
-            <label className="mr-2 font-medium">Status ফিল্টার করুন:</label>
+            <label className="mr-2 font-medium">ফিল্টার করুন:</label>
             <select
                value={filter}
                onChange={(e) => setFilter(e.target.value)}
@@ -62,16 +49,14 @@ function PaymentHistory() {
          </div>
 
          <div className="overflow-x-auto">
-            <table className="min-w-full table-auto border">
+            <table className="min-w-full border table-auto">
                <thead>
-                  <tr className="bg-gray-100 text-left">
+                  <tr className="bg-gray-100">
                      <th className="px-4 py-2 border">#</th>
-                     <th className="px-4 py-2 border">User Email</th>
                      <th className="px-4 py-2 border">Transaction ID</th>
                      <th className="px-4 py-2 border">Amount</th>
                      <th className="px-4 py-2 border">Status</th>
                      <th className="px-4 py-2 border">Date</th>
-                     <th className="px-4 py-2 border">Action</th>
                   </tr>
                </thead>
                <tbody>
@@ -79,14 +64,13 @@ function PaymentHistory() {
                      filteredPayments.map((payment, index) => (
                         <tr key={payment._id} className="hover:bg-gray-50">
                            <td className="px-4 py-2 border">{index + 1}</td>
-                           <td className="px-4 py-2 border">{payment.email}</td>
                            <td className="px-4 py-2 border">{payment.transactionId}</td>
                            <td className="px-4 py-2 border">৳{payment.amount}</td>
                            <td className="px-4 py-2 border capitalize">
                               <span
                                  className={`px-2 py-1 rounded text-white text-sm ${payment.status === "paid"
-                                    ? "bg-green-500"
-                                    : "bg-yellow-500"
+                                       ? "bg-green-500"
+                                       : "bg-yellow-500"
                                     }`}
                               >
                                  {payment.status}
@@ -95,19 +79,11 @@ function PaymentHistory() {
                            <td className="px-4 py-2 border">
                               {new Date(payment.date).toLocaleString()}
                            </td>
-                           <td className="px-4 py-2 border">
-                              <button
-                                 onClick={() => handleStatusToggle(payment._id, payment.status)}
-                                 className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                              >
-                                 Toggle
-                              </button>
-                           </td>
                         </tr>
                      ))
                   ) : (
                      <tr>
-                        <td colSpan="7" className="text-center py-4 text-gray-500">
+                        <td colSpan="5" className="text-center py-4 text-gray-500">
                            কোনো পেমেন্ট পাওয়া যায়নি।
                         </td>
                      </tr>
@@ -119,4 +95,4 @@ function PaymentHistory() {
    );
 }
 
-export default PaymentHistory;
+export default DashbordPymant;

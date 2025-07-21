@@ -73,13 +73,13 @@ function AddMedicineModal({ isOpen, onClose }) {
 
    return (
       <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-         <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-xl relative">
+         <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg relative">
             <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Add New Medicine</h2>
 
             {isLoading && <p className="text-center text-gray-500">Loading categories...</p>}
             {isError && <p className="text-center text-red-500">Failed to load categories.</p>}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Medicine Name</label>
                   <select {...register("name")} required className="w-full px-3 py-2 border rounded-lg">

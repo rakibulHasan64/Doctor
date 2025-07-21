@@ -1,19 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
-import useAuth from "../../hooks/useAuth";
+
+import usePymant from "../../hooks/usePymant";
 
 function UserPymantHistory() {
-   const { user } = useAuth();
-   const axiosSecure = useAxiosSecure();
+   const { payments, isLoading, refetch, isError } = usePymant();
 
-   const { data: payments = [], isLoading, isError } = useQuery({
-      queryKey: ["user-payments", user?.email],
-      queryFn: async () => {
-         const res = await axiosSecure.get(`/payments?email=${user?.email}`);
-         return res.data;
-      },
-      enabled: !!user?.email,
-   });
+
+
 
    if (isLoading) return <p className="p-4">Loading...</p>;
    if (isError) return <p className="p-4 text-red-500">Failed to load payment history.</p>;
@@ -33,7 +25,7 @@ function UserPymantHistory() {
                   </tr>
                </thead>
                <tbody>
-                  {payments.map((payment, index) => (
+                  {payments?.map((payment, index) => (
                      <tr key={payment._id} className="hover:bg-gray-50">
                         <td className="px-4 py-2 border">{index + 1}</td>
                         <td className="px-4 py-2 border">{payment.transactionId}</td>

@@ -1,16 +1,23 @@
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { useNavigate } from "react-router-dom";
 
-function Chakout({ user, cartItems, totalprice }) {
+
+function Chakout({ user, cartItems, totalprice, quantity }) {
+
+
+   
    const stripe = useStripe();
    const elements = useElements();
    const [error, setError] = useState(null);
    const [success, setSuccess] = useState(null);
    const [processing, setProcessing] = useState(false);
    const axiosSecure = useAxiosSecure();
+   const navget = useNavigate();
 
 
+    
 
 
 
@@ -34,17 +41,15 @@ function Chakout({ user, cartItems, totalprice }) {
       if (error) {
          setError(error.message);
          setProcessing(false);
-         return; 
+         return;
       }
 
       try {
-         
          const res = await axiosSecure.post("/create-payment-intent", {
-            amount: Math.round(totalprice * 100), 
+            amount: Math.round(totalprice * 100),
          });
-         const clientSecret = res.data.clientSecret; 
+         const clientSecret = res?.data?.clientSecret;
 
-         
          const confirmResult = await stripe.confirmCardPayment(clientSecret, {
             payment_method: paymentMethod.id,
          });
@@ -54,15 +59,27 @@ function Chakout({ user, cartItems, totalprice }) {
          } else if (confirmResult.paymentIntent.status === "succeeded") {
             setSuccess("🎉 পেমেন্ট সফল হয়েছে!");
 
-            
-            await axiosSecure.post("/payment", {
-               userEmail: user.email,
-               cartItems: cartItems?.map(item => ({ id: item.medicine._id, quantity: item.quantity })), 
+
+            const data = {
+               userEmail: user?.email,
+               items: cartItems.map(item => ({
+                  id: item.medicine?._id,
+                  quantity: item.quantity,
+                  name: item.medicine.name,
+                  generic: item.medicine.generic,
+
+               })),
                amount: totalprice,
-               transactionId: confirmResult.paymentIntent.id, 
-               status: "paid",
+               transactionId: confirmResult.paymentIntent.id,
+               status: "pending",
                date: new Date(),
-            });
+            };
+            
+            await axiosSecure.post("/payment", data);
+
+            
+            
+            navget("/invoice");
          }
       } catch (err) {
          setError("পেমেন্ট প্রসেসিংয়ে সমস্যা হয়েছে।");
@@ -71,6 +88,7 @@ function Chakout({ user, cartItems, totalprice }) {
 
       setProcessing(false);
    };
+
 
 
    return (

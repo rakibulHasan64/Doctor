@@ -1,15 +1,17 @@
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 function ManageBanner() {
    const axiosSecure = useAxiosSecure();
    const queryClient = useQueryClient();
-   const [modalOpen, setModalOpen] = useState(false);
+   const [showModal, setShowModal] = useState(false);
    const { register, handleSubmit, reset } = useForm();
 
-   const { data: banners = [] } = useQuery({
+   // Fetch banners
+   const { data: banners = [], isLoading, isError } = useQuery({
       queryKey: ["banners"],
       queryFn: async () => {
          const res = await axiosSecure.get("/banners");
@@ -17,24 +19,18 @@ function ManageBanner() {
       },
    });
 
-   const toggleMutation = useMutation({
-      mutationFn: ({ id, active }) =>
-         axiosSecure.patch(`/banners/${id}/toggle`, { active }),
+   // Add new banner
+   const addBannerMutation = useMutation({
+      mutationFn: (newBanner) => axiosSecure.post("/banners", newBanner),
       onSuccess: () => {
          queryClient.invalidateQueries(["banners"]);
-      },
-   });
-
-   const addMutation = useMutation({
-      mutationFn: (data) => axiosSecure.post("/banners", data),
-      onSuccess: () => {
-         queryClient.invalidateQueries(["banners"]);
+         setShowModal(false);
          reset();
-         setModalOpen(false);
       },
    });
 
-   const deleteMutation = useMutation({
+   // Delete banner
+   const deleteBannerMutation = useMutation({
       mutationFn: (id) => axiosSecure.delete(`/banners/${id}`),
       onSuccess: () => {
          queryClient.invalidateQueries(["banners"]);
@@ -42,114 +38,154 @@ function ManageBanner() {
    });
 
    const onSubmit = (data) => {
-      addMutation.mutate(data);
+      const bannerData = {
+         title: data.title,
+         image: data.image,
+         description: data.description || "",
+         active: false,
+      };
+      addBannerMutation.mutate(bannerData);
    };
 
-   const handleToggle = (id, currentStatus) => {
-      toggleMutation.mutate({ id, active: !currentStatus });
-   };
-
-   const handleDelete = (id) => {
-      if (window.confirm("Are you sure you want to delete this banner?")) {
-         deleteMutation.mutate(id);
-      }
-   };
+   if (isLoading) return <p className="text-center py-10">লোড হচ্ছে...</p>;
+   if (isError) return <p className="text-center text-red-500 py-10">ডেটা লোড করতে সমস্যা হয়েছে।</p>;
 
    return (
-      <div className="p-6">
-         <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">Manage Banner Advertise</h1>
+      <div className="p-4 md:p-6">
+         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-0">Manage Advertisement Banners</h2>
             <button
-               onClick={() => setModalOpen(true)}
-               className="px-4 py-2 bg-green-600 text-white rounded"
+               onClick={() => setShowModal(true)}
+               className="bg-blue-600 hover:bg-blue-700 transition text-white px-4 py-2 rounded"
             >
-               + Add Banner
+               + Add Advertisement
             </button>
          </div>
 
-         <table className="w-full table-auto border">
-            <thead className="bg-gray-100">
-               <tr>
-                  <th className="px-4 py-2 text-left">Title</th>
-                  <th className="px-4 py-2">Image</th>
-                  <th className="px-4 py-2">Status</th>
-                  <th className="px-4 py-2">Actions</th>
-               </tr>
-            </thead>
-            <tbody>
-               {banners.map((banner) => (
-                  <tr key={banner._id} className="border-t text-center">
-                     <td className="px-4 py-2">{banner.title}</td>
-                     <td className="px-4 py-2">
-                        <img
-                           src={banner.image}
-                           alt={banner.title}
-                           className="w-24 h-12 object-cover mx-auto"
-                        />
-                     </td>
-                     <td className="px-4 py-2">
-                        <span
-                           className={`px-2 py-1 rounded text-white ${banner.active ? "bg-green-500" : "bg-gray-400"}`}
-                        >
-                           {banner.active ? "Active" : "Inactive"}
-                        </span>
-                     </td>
-                     <td className="px-4 py-2 flex justify-center gap-2">
-                        <button
-                           onClick={() => handleToggle(banner._id, banner.active)}
-                           className={`px-3 py-1 rounded ${banner.active ? "bg-red-600" : "bg-blue-600"} text-white`}
-                        >
-                           {banner.active ? "Disable" : "Enable"}
-                        </button>
-                        <button
-                           onClick={() => handleDelete(banner._id)}
-                           className="px-3 py-1 rounded bg-gray-700 text-white"
-                        >
-                           Delete
-                        </button>
-                     </td>
+         {/* Banner Table */}
+         <div className="overflow-x-auto shadow rounded border">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+               <thead className="bg-gray-100 text-left">
+                  <tr>
+                     <th className="px-4 py-2 border">#</th>
+                     <th className="px-4 py-2 border">Image</th>
+                     <th className="px-4 py-2 border">Description</th>
+                     <th className="px-4 py-2 border">Status</th>
+                     <th className="px-4 py-2 border">Actions</th>
                   </tr>
-               ))}
-            </tbody>
-         </table>
+               </thead>
+               <tbody className="bg-white">
+                  {banners.length > 0 ? (
+                     banners.map((banner, index) => (
+                        <tr key={banner._id} className="hover:bg-gray-50">
+                           <td className="px-4 py-2 border">{index + 1}</td>
+                           <td className="px-4 py-2 border">
+                              <img
+                                 src={banner.image}
+                                 alt={banner.title || "Banner"}
+                                 className="w-24 h-16 object-cover rounded"
+                              />
+                           </td>
+                           <td className="px-4 py-2 border">{banner.description || "-"}</td>
+                           <td className="px-4 py-2 border">
+                              <span
+                                 className={`px-3 py-1 text-xs rounded-full font-medium ${banner.active
+                                       ? "bg-green-100 text-green-800"
+                                       : "bg-gray-200 text-gray-600"
+                                    }`}
+                              >
+                                 {banner.active ? "Active" : "Inactive"}
+                              </span>
+                           </td>
+                           <td className="px-4 py-2 border">
+                              <button
+                                 onClick={() => {
+                                    Swal.fire({
+                                       title: "Are you sure?",
+                                       text: "You won't be able to revert this!",
+                                       icon: "warning",
+                                       showCancelButton: true,
+                                       confirmButtonColor: "#d33",
+                                       cancelButtonColor: "#3085d6",
+                                       confirmButtonText: "Yes, delete it!",
+                                    }).then((result) => {
+                                       if (result.isConfirmed) {
+                                          deleteBannerMutation.mutate(banner._id, {
+                                             onSuccess: () => {
+                                                Swal.fire("Deleted!", "The banner has been deleted.", "success");
+                                             },
+                                          });
+                                       }
+                                    });
+                                 }}
+                                 className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded"
+                              >
+                                 Delete
+                              </button>
+
+                           </td>
+                        </tr>
+                     ))
+                  ) : (
+                     <tr>
+                        <td colSpan="5" className="text-center py-6 text-gray-500">
+                           কোনো বিজ্ঞাপন পাওয়া যায়নি।
+                        </td>
+                     </tr>
+                  )}
+               </tbody>
+            </table>
+         </div>
 
          {/* Modal */}
-         {modalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-               <div className="bg-white p-6 rounded-lg w-96 shadow">
-                  <h2 className="text-xl font-semibold mb-4">Add New Banner</h2>
+         {showModal && (
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center px-4">
+               <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+                  <h3 className="text-lg font-semibold mb-4">Add Advertisement</h3>
+
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                      <div>
-                        <label className="block text-sm font-medium">Banner Title</label>
+                        <label className="block text-sm font-medium mb-1">Banner Title</label>
                         <input
                            {...register("title", { required: true })}
-                           className="w-full border px-3 py-2 rounded"
+                           className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:ring-blue-200"
                            placeholder="Summer Sale"
                         />
                      </div>
+
                      <div>
-                        <label className="block text-sm font-medium">Image URL</label>
+                        <label className="block text-sm font-medium mb-1">Image URL</label>
                         <input
                            {...register("image", { required: true })}
-                           className="w-full border px-3 py-2 rounded"
+                           className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:ring-blue-200"
                            placeholder="https://example.com/banner.jpg"
                         />
                      </div>
 
-                     <div className="flex justify-end gap-3">
+                     <div>
+                        <label className="block text-sm font-medium mb-1">Description (optional)</label>
+                        <textarea
+                           {...register("description")}
+                           className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:ring-blue-200"
+                           placeholder="Enter description"
+                           rows={3}
+                        />
+                     </div>
+
+                     <div className="flex justify-end gap-3 mt-4">
                         <button
                            type="button"
                            onClick={() => {
-                              setModalOpen(false);
+                              setShowModal(false);
                               reset();
                            }}
-                           className="px-4 py-2 bg-gray-300 rounded"
+                           className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
                         >
                            Cancel
                         </button>
                         <button
                            type="submit"
-                           className="px-4 py-2 bg-green-600 text-white rounded"
+                           className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
                         >
                            Add Banner
                         </button>
