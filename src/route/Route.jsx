@@ -22,6 +22,9 @@ import InvoisPage from "../componet/home/extasetiontwo/InvoisPage";
 import DashbordPymant from "../componet/dasbord/DashbordPymant";
 import SalesReport from "../componet/dasbord/SalesReport";
 import AdminBannMage from "../admin/AdminBannMage";
+import PrivateRoute from "./PrivetRoute";
+import AdminRoute from "./AdminRoute";
+import SellerRoute from "./SelleRoute";
 
 
 
@@ -41,19 +44,19 @@ export const router = createBrowserRouter([
 
          {
             path: "/shop",
-            element: <ShopPage />
+            element: <PrivateRoute><ShopPage /></PrivateRoute>
          },
 
          {
             path: "/medicine/:id",
-            element:< DetlisPage />
+            element: <PrivateRoute><DetlisPage /></PrivateRoute>
 
          },
 
          {
 
             path: "/add-to-cart",
-            element: <AddToCartPage />
+            element: <PrivateRoute><AddToCartPage /></PrivateRoute> 
 
          },
 
@@ -81,59 +84,57 @@ export const router = createBrowserRouter([
 
    {
       path: "/dashboard",
-      element: <DashboardLayout />, 
+      element: <PrivateRoute> <DashboardLayout /></PrivateRoute>, 
       children: [
          {
             path: "",
-            element: <DashboardHome />
+            element: <AdminRoute><DashboardHome /></AdminRoute>
          },
          {
             path: "manage-users",
-            element: < ManageUsers />
+            element: <AdminRoute>< ManageUsers /></AdminRoute> 
          },
          {
             path: "manage-categories",
-            element: <ManageCategory />
+            element: <AdminRoute><ManageCategory /></AdminRoute>
          },
          {
 
             path: "payment/:id",
-            element: < Pymant />
+            element: <PrivateRoute><Pymant /></PrivateRoute> 
 
          },
-
-
          {
 
             path: "user-pymanthistroy",
-            element: <UserPymantHistory />
+            element: <PrivateRoute><UserPymantHistory /></PrivateRoute>
 
          },
 
          {
             path: "dashboard-pymant-seller",
-            element: <DashbordPymant />
+            element: <SellerRoute><DashbordPymant /></SellerRoute>
          },
 
          {
             path: "sales-report",
-            element: <SalesReport />
+            element: <SellerRoute><SalesReport /></SellerRoute>
          },
          {
             path: "manage-banner",
-            element: <AdminBannMage />
+            element: <AdminRoute><AdminBannMage /></AdminRoute> 
          },
          {
             path: "manage-medicines",
-            element: <Sellarmanageall />
+            element: <SellerRoute><Sellarmanageall /></SellerRoute>
          },
          {
             path: "payment-history",
-            element: < PaymentHistory />
+            element: <AdminRoute><PaymentHistory /></AdminRoute>
          },
          {
             path: "advertise-request",
-            element: <ManageBanner />
+            element: <SellerRoute><ManageBanner /></SellerRoute>
          }
       ]
    },
