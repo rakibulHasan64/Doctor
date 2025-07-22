@@ -118,7 +118,7 @@ export const router = createBrowserRouter([
 
          {
             path: "sales-report",
-            element: <SellerRoute><SalesReport /></SellerRoute>
+            element: <AdminRoute><SalesReport /></AdminRoute>
          },
          {
             path: "manage-banner",
